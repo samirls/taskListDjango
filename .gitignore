@@ -1,0 +1,13 @@
+# Ignorar o ambiente virtual
+venv/
+
+# Ignorar arquivos compilados do Python
+*.pyc
+__pycache__/
+
+# Ignorar a pasta de migrações do Django (opcional, se for temporária)
+*/migrations/
+
+# Arquivos de configuração locais
+.env
+db.sqlite3

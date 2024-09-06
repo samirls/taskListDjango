@@ -1,0 +1,70 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Meu Projeto{% endblock %}</title>
+    <!-- Bootstrap CSS bootswatch Zephyr-->
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+  <header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3 shadow" style="height: 130px">
+      <div class="container-fluid p-5" style="display: flex; justify-content:space-between">
+        <div class="d-flex justify-content-between w-100">
+          <a class="navbar-brand fs-1" href="{% url 'index' %}"><i class="bi bi-list-check" style="color: #007bff;"></i> <strong>TaskListPython</strong></a>
+          <button class="btn btn-light fs-1 d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#hiddenMenu">
+            <i class="bi bi-three-dots-vertical"></i>
+          </button>
+
+          <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="hiddenMenu" style="width: 70%">
+            <div class="offcanvas-header">
+              <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+              <ul class="navbar-nav flex-grow-1 fs-4 gap-5">
+                {% include 'partials/links.html' %}
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between pe-5">
+            <ul class="navbar-nav flex-grow-1 fs-4 gap-5">
+              {% include 'partials/links.html' %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+    <div class="container">
+        {% block content %}
+        <!-- content of all pages will be inside here -->
+        {% endblock %}
+    </div>
+    <footer class="border-top text-muted">
+      <div class="container">
+        <div class="d-flex justify-content-center">
+          &copy; <strong>2024 - TaskList </strong>
+        </div>
+        <div class="d-flex justify-content-center text-center">
+          This is part of a free C# course created by Samir Laguardia. Visit:
+        </div>
+        <div class="d-flex justify-content-center gap-2 fs-4">
+          <a target="_blank" href="https://www.youtube.com/channel/UCPRfNS7qxRgGMjsY4tGcy2A">
+            <i class="bi bi-youtube youtubeIcon"></i>
+          </a>
+          <a target="_blank" href="https://www.linkedin.com/in/samir-laguardia/">
+            <i class="bi bi-linkedin linkedinIcon"></i>
+          </a>
+        </div>
+  
+      </div>
+    </footer>
+</body>
+</html>
