@@ -1,25 +1,27 @@
+{% if user.is_authenticated %}
 <li class="nav-item">
-  <a class="nav-link" href="{% url 'index' %}">
-    Home
-  </a>
+  <a class="nav-link {% if request.path == '/' %}text-primary{% endif %}" href="{% url 'index' %}">Home</a>
 </li>
 <li class="nav-item">
-  <a class="nav-link" href="login">
-    Login
-  </a>
+  <a class="nav-link {% if request.path == '/tasks' %}text-primary{% endif %}" href="tasks">Tasks</a>
 </li>
 <li class="nav-item">
-  <a class="nav-link" href="register">
-    Register
-  </a>
+  <a class="nav-link {% if request.path == '/friends' %}text-primary{% endif %}" href="friends">Friends</a>
+</li>
+{% else %}
+<li class="nav-item"></li>
+  <a class="nav-link {% if request.path == '/' %}text-primary{% endif %}" href="{% url 'index' %}">Home</a>
 </li>
 <li class="nav-item">
-  <a class="nav-link" href="tasks">
-    Tasks
-  </a>
+  <a class="nav-link {% if request.path == '/login' %}text-primary{% endif %}" href="login">Login</a>
 </li>
 <li class="nav-item">
-  <a class="nav-link" href="friends">
-    Friends
-  </a>
+  <a class="nav-link {% if request.path == '/register' %}text-primary{% endif %}" href="register">Register</a>
 </li>
+<li class="nav-item">
+  <a class="nav-link {% if request.path == '/tasks' %}text-primary{% endif %}" href="tasks">Tasks</a>
+</li>
+<li class="nav-item">
+  <a class="nav-link {% if request.path == '/friends' %}text-primary{% endif %}" href="friends">Friends</a>
+</li>
+{% endif %}
