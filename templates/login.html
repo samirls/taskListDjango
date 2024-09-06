@@ -6,12 +6,17 @@
 
 <div class="d-flex justify-content-center">
   <div class="mt-5" style="width: 320px; padding: 45px;">
-    <form asp-controller="Account" asp-action="Login" method="post" id="loginForm">
+    <form method="POST" action="login" id="loginForm">
+      {% csrf_token %}
       <div asp-validation-summary="All" class="text-danger"></div>
       <h1 class="h3 mb-3 fw-normal d-flex justify-content-center">Login</h1>
+      {% for message in messages %}
+      <h5 class="text-danger">{{message}}</h5>
+      {% endfor %}
       <div class="form-floating">
         <input 
           type="email"
+          name="email"
           class="form-control"
           id="floatingInput"
           placeholder="name@example.com"
@@ -22,6 +27,7 @@
         <div class="form-floating">
           <input 
             type="password"
+            name="password"
             class="form-control"
             id="floatingPassword"
             placeholder="Password"

@@ -22,3 +22,12 @@ The venv folder is git ignored, the dependencies are listed in requirements.txt 
 To install dependencies automatically:
   pip install -r requirements.txt
 
+To create superuser (only after creating the migrations in db):
+  python manage.py createsuperuser
+
+To make migrations:
+  python manage.py makemigrations
+
+To save migrations to database:
+  python manage.py migrate
+

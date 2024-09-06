@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Friends{% endblock %}
+
+{% block content %}
+
+<h1>Friends</h1>
+
+<div class="dropdown">
+  <button type="button" class="btn btn-success" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+    <div class="d-flex gap-1 align-content-center">
+      <i class="bi bi-plus-circle"></i> Invite a friend
+    </div>
+  </button>
+  <form class="dropdown-menu p-4" method="post">
+    <div class="mb-3">
+      <label for="FriendEmail" class="form-label">Friend's Email address</label>
+      <input type="email" class="form-control" id="FriendEmail" name="FriendEmail" placeholder="email@example.com">
+    </div>
+    <button type="submit" class="btn btn-success">Send Invitation</button>
+  </form>
+</div>
+<a href="invitations" class="d-flex pt-2 link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Manage your invitations</a>
+
+
+<hr />
+<h4>All Your Friends</h4>
+@if (Model.Friends.Count == 0)
+{
+  <p>You have no friends yet.</p>
+}
+else
+{
+  <div class="d-flex flex-wrap gap-5">
+    @foreach (var friend in Model.Friends)
+    {
+      <div class="card shadow" style="width: fit-content">
+        <div class="card-body">
+          <h5 class="card-title">@friend.Name.ToUpper()</h5>
+          <h6 class="card-subtitle mb-2 text-body-secondary">@friend.Email</h6>
+        </div>
+      </div>
+
+    }
+  </div>
+}
+
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Invitations{% endblock %}
+
+{% block content %}
+
+<h3>Sent Invites</h3>
+
+  <div>No invites sent</div>
+
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">To User</th>
+        <th scope="col">Status</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+          <td>@invite.Receiver.Name.ToUpper()</td>
+          <td>@invite.InviteStatus</td>
+          <td>
+            <form asp-action="DeleteInviteAndFriend" method="post">
+              <input type="hidden" name="InviteId" value="@invite.Id" />
+              <button class="btn btn-outline-danger btn-sm">Delete</button>
+            </form>
+          </td>
+        </tr>
+      
+    </tbody>
+  </table>
+
+<h3 class="pt-5">Received Invites</h3>
+
+  <div>There are no friend requests</div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">From User</th>
+        <th scope="col">Status</th>
+        <th scope="col">Notification</th>
+        <th scope="col">Friendship</th>
+      </tr>
+    </thead>
+    <tbody>
+
+        <tr>
+          <td>@invite.Sender.Name.ToUpper()</td>
+          <td>@invite.InviteStatus</td>
+          <td>
+            <div class="d-flex flex-column gap-1" style="width: fit-content;">
+              <form asp-action="MarkAsRead" method="post">
+                <input type="hidden" name="InviteId" value="@invite.Id" />
+                <button type="submit" class="btn btn-outline-secondary btn-sm">Mark as Read</button>
+              </form>
+              <form asp-action="MarkAsUnread" method="post">
+                <input type="hidden" name="InviteId" value="@invite.Id" />
+                <button type="submit" class="btn btn-outline-secondary btn-sm">Mark as Unread</button>
+              </form>
+            </div>
+          </td>
+          <td>
+            <div class="d-flex flex-column gap-1" style="width: fit-content;">
+              <form asp-action="AcceptInvite" method="post">
+                <input type="hidden" name="InviteId" value="@invite.Id" />
+                <button type="submit" class="btn btn-outline-success btn-sm">Accept</button>
+              </form>
+              <form asp-action="DeleteInviteAndFriend" method="post">
+                <input type="hidden" name="InviteId" value="@invite.Id" />
+                <button class="btn btn-outline-danger btn-sm">Delete</button>
+              </form>
+              
+            </div>
+          </td>
+        </tr>
+      
+    </tbody>
+  </table>
+
+
+
+{% endblock %}
