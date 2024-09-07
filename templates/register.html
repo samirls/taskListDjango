@@ -6,74 +6,99 @@
 
 <div class="d-flex justify-content-center mb-5">
   <div class="mt-5 p-3" style="width: 100%; max-width: 640px;">
-    <form method="POST" action="register">
+    <form method="POST" action="">
       {% csrf_token %}
       <h1 class="h3 mb-3 fw-normal text-center">Register</h1>
+
       {% for message in messages %}
-      <h5 class="text-danger">{{message}}</h5>
+        <div class="alert alert-danger">{{ message }}</div>
       {% endfor %}
+
       <div class="row g-3">
         <div class="col-12 col-md-6">
           <div class="form-floating">
-            <input type="text" name="name" class="form-control" id="nameInput" placeholder="E.g: John">
+            <input type="text" name="name" class="form-control {% if form.name.errors %}is-invalid{% endif %}" id="nameInput" placeholder="John" value="{{ form.name.value|default_if_none:'' }}">
             <label for="nameInput">First Name</label>
+            {% for error in form.name.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
           </div>
         </div>
+
         <div class="col-12 col-md-6">
           <div class="form-floating">
-            <input type="email" name="email" class="form-control" id="floatingInput" placeholder="name@example.com">
-            <label for="floatingInput">Email address</label>
+            <input type="email" name="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" id="emailInput" placeholder="name@example.com" value="{{ form.email.value|default_if_none:'' }}">
+            <label for="emailInput">Email address</label>
+            {% for error in form.email.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
           </div>
         </div>
+
         <div class="col-12 col-md-6">
           <div class="form-floating">
-            <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password">
-            <label for="floatingPassword">Password</label>
+            <input type="password" name="password" class="form-control {% if form.password.errors %}is-invalid{% endif %}" id="passwordInput" placeholder="Password">
+            <label for="passwordInput">Password</label>
+            {% for error in form.password.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
           </div>
         </div>
+
         <div class="col-12 col-md-6">
           <div class="form-floating">
-            <input type="password" name="confirmPassword" class="form-control" id="confirmPassword" placeholder="Password">
-            <label for="confirmPassword">Confirm your Password</label>
+            <input type="password" name="confirm_password" class="form-control {% if form.confirm_password.errors %}is-invalid{% endif %}" id="confirmPasswordInput" placeholder="Confirm Password">
+            <label for="confirmPasswordInput">Confirm Password</label>
+            {% for error in form.confirm_password.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
           </div>
         </div>
+
         <div class="col-12 col-md-6">
-          <select class="form-select" name="sex">
+          <select class="form-select {% if form.sex.errors %}is-invalid{% endif %}" name="sex" id="sexInput">
             <option value="" selected>Sex</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="dontAnswer">Don't Answer</option>
+            <option value="male" {% if form.sex.value == "male" %}selected{% endif %}>Male</option>
+            <option value="female" {% if form.sex.value == "female" %}selected{% endif %}>Female</option>
+            <option value="dontAnswer" {% if form.sex.value == "dontAnswer" %}selected{% endif %}>Don't Answer</option>
           </select>
+          {% for error in form.sex.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
         </div>
+
         <div class="col-12 col-md-6">
-          <select class="form-select" name="color">
+          <select class="form-select {% if form.color.errors %}is-invalid{% endif %}" name="color" id="colorInput">
             <option value="" selected>Color</option>
-            <option value="blue">Blue</option>
-            <option value="pink">Pink</option>
-            <option value="green">Green</option>
+            <option value="blue" {% if form.color.value == "blue" %}selected{% endif %}>Blue</option>
+            <option value="pink" {% if form.color.value == "pink" %}selected{% endif %}>Pink</option>
+            <option value="green" {% if form.color.value == "green" %}selected{% endif %}>Green</option>
           </select>
+          {% for error in form.color.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
         </div>
         <div class="col-12 col-md-6">
-          <select class="form-select" name="age">
+          <select class="form-select {% if form.age.errors %}is-invalid{% endif %}" name="age" id="ageInput">
             <option value="" selected>Age</option>
-            <option value="18orLess">18 or Less</option>
-            <option value="19to25">19 to 25</option>
-            <option value="26to35">26 to 35</option>
-            <option value="36to45">36 to 45</option>
-            <option value="45orAbove">45 or Above</option>
+            <option value="18orLess" {% if form.age.value == "18orLess" %}selected{% endif %}>18 or Less</option>
+            <option value="19to25" {% if form.age.value == "19to25" %}selected{% endif %}>19 to 25</option>
+            <option value="26to35" {% if form.age.value == "26to35" %}selected{% endif %}>26 to 35</option>
+            <option value="36to45" {% if form.age.value == "36to45" %}selected{% endif %}>36 to 45</option>
+            <option value="45orAbove" {% if form.age.value == "45orAbove" %}selected{% endif %}>45 or Above</option>
           </select>
+          {% for error in form.age.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
         </div>
       </div>
       <div class="pt-4 d-flex gap-1">
         <p>Already have an account?</p>
-        <a class="d-flex link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">
-          Login
-        </a>
+        <a href="{% url 'login' %}" class="d-flex link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Login</a>
       </div>
+
       <div class="pt-3">
-        <button class="btn btn-primary w-100 py-2" type="submit">
-          Register
-        </button>
+        <button class="btn btn-primary w-100 py-2" type="submit">Register</button>
       </div>
     </form>
   </div>

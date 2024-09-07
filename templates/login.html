@@ -8,36 +8,28 @@
   <div class="mt-5" style="width: 320px; padding: 45px;">
     <form method="POST" action="login" id="loginForm">
       {% csrf_token %}
-      <div asp-validation-summary="All" class="text-danger"></div>
       <h1 class="h3 mb-3 fw-normal d-flex justify-content-center">Login</h1>
-      {% for message in messages %}
-      <h5 class="text-danger">{{message}}</h5>
-      {% endfor %}
+
       <div class="form-floating">
-        <input 
-          type="email"
-          name="email"
-          class="form-control"
-          id="floatingInput"
-          placeholder="name@example.com"
-        />
+        <input required type="email" name="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" id="emailInput" placeholder="name@example.com">
         <label for="floatingInput">Email address</label>
+        {% for error in form.email.errors %}
+        <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
       </div>
+
       <div class="pt-3">
         <div class="form-floating">
-          <input 
-            type="password"
-            name="password"
-            class="form-control"
-            id="floatingPassword"
-            placeholder="Password"
-          />
+          <input required type="password" name="password" class="form-control {% if form.password.errors %}is-invalid{% endif %}" id="passwordInput" placeholder="Password">
           <label for="floatingPassword">Password</label>
+          {% for error in form.password.errors %}
+          <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
         </div>
       </div>
       <div class="pt-4 text-center d-flex gap-1">
         <p>Don't have an account?</p>
-        <a class="d-flex link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Register</a>
+        <a href="register" class="d-flex link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Register</a>
       </div>
       <button id="submitButton" class="btn btn-primary w-100 py-2" type="submit">
         <span id="buttonText">Sign in</span>
