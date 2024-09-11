@@ -3,35 +3,32 @@
 {% block title %}Tasks{% endblock %}
 
 {% block content %}
-
   <h1>Tasks</h1>
-  <a class="btn btn-success" href="tasks/createNewTask">
+  <a class="btn btn-success" href="{% url 'createNewTask' %}">
     <div class="d-flex gap-1 align-content-center">
       <i class="bi bi-plus-circle"></i> Create New Task
     </div>
   </a>
   <hr />
   <h4>All Tasks</h4>
-  {% if tasks %}
+  {% if user_tasks %}
   <div class="d-flex flex-wrap gap-5 pb-5">
-    {% for task in tasks %}
+    {% for user_task in user_tasks %}
       <li class="list-group-item d-flex justify-content-between align-items-center">
         <div class="card shadow" style="width: 350px;">
           <div class="card-body">
             <div class="d-flex justify-content-between fs-4">
-              <div class="card-title">{{task.title}}</div>
-              {% if task.priority_id == 1 %}
+              <div class="card-title">{{ user_task.task.title }}</div>
+              {% if user_task.task.priority.id == 1 %}
                 <i class="bi bi-circle-fill text-success"></i>
-              {% endif %}
-              {% if task.priority_id == 2 %}
+              {% elif user_task.task.priority.id == 2 %}
                 <i class="bi bi-alarm text-primary"></i>
-              {% endif %}
-              {% if task.priority_id == 3 %}
-                <i class="bi bi-exclamation-triangle text-danger "></i>
+              {% elif user_task.task.priority.id == 3 %}
+                <i class="bi bi-exclamation-triangle text-danger"></i>
               {% endif %}
             </div>
     
-            <p class="card-text">{{task.description}}</p>
+            <p class="card-text">{{ user_task.task.description }}</p>
           </div>
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
@@ -39,30 +36,44 @@
                 Created by
                 <span class="btn btn-outline-secondary"
                       style="--bs-btn-padding-y: .05rem; --bs-btn-padding-x: .2rem; --bs-btn-font-size: .65rem;">
-                  need to implement
+                  {{ user_task.task.user.name|upper }}
                 </span>
-                missing
+                at {{ user_task.task.createdAt|date:"d/m/Y H:i" }}
               </div>
+              {% if user_task.task.createdAt != user_task.task.lastUpdate %}
                 <div>
-                  Last Update by <span class="btn btn-outline-secondary" style="--bs-btn-padding-y: .05rem; --bs-btn-padding-x: .2rem; --bs-btn-font-size: .65rem;">
-                    need to implement
-                  </span> missing
+                  Last Update by 
+                  <span class="btn btn-outline-secondary" style="--bs-btn-padding-y: .05rem; --bs-btn-padding-x: .2rem; --bs-btn-font-size: .65rem;">
+                    {% if user_task.task.updatedByUser %}
+                      {{ user_task.task.updatedByUser.name|upper }}
+                    {% else %}
+                      N/A
+                    {% endif %}
+                  </span> 
+                  {{ user_task.task.lastUpdate|date:"d/m/Y H:i" }}
                 </div>
+              {% endif %}
             </li>
             <li class="list-group-item">
               Shared with:
+                {% for user in user_task.task.user.task_owner.all %}
                 <span class="btn btn-outline-secondary"
                       style="--bs-btn-padding-y: .05rem; --bs-btn-padding-x: .2rem; --bs-btn-font-size: .65rem;">
-                  @user.Name.ToUpper()
+                  {{ user.name|upper }}
                 </span>
-
+                {% empty %}
+                <span class="btn btn-outline-secondary"
+                      style="--bs-btn-padding-y: .05rem; --bs-btn-padding-x: .2rem; --bs-btn-font-size: .65rem;">
+                  None
+                </span>
+                {% endfor %}
             </li>
             <li class="list-group-item">
               <form method="POST" onsubmit="confirmDelete(this);" class="d-flex justify-content-center gap-2">
                 {% csrf_token %}
                 <a class="btn btn-primary">Share</a>
-                <a href="{% url 'editTask' task.id %}" class="btn btn-purple">Edit</a>
-                <button type="submit" data-task-id="{{ task.id }}" class="btn btn-danger">Delete</button>
+                <a href="{% url 'editTask' user_task.task.id %}" class="btn btn-purple">Edit</a>
+                <button type="submit" data-task-id="{{ user_task.task.id }}" class="btn btn-danger">Delete</button>
               </form>
             </li>
           </ul>
@@ -72,8 +83,6 @@
 {% else %}
   <h6 class="d-flex justify-content-center">You have no tasks, create one!</h6>
 {% endif %}
-
-
 {% block extra_scripts %}
 <script>
   function confirmDelete(form) {
@@ -126,7 +135,5 @@
     return false;
   }
 </script>
-
 {% endblock %}
 {% endblock %}
-

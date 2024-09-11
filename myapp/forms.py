@@ -87,24 +87,4 @@ class CreateTaskForm(forms.ModelForm):
         })
     )
     
-class EditTaskForm(forms.ModelForm):
-    class Meta:
-        model = ToDoTask
-        fields = ['title', 'description', 'priority']
-        
-        widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Task Title'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Task Description', 'rows': 5}),
-            'priority': forms.Select(attrs={'class': 'form-select'}),
-        }
-
-        error_messages = {
-            'title': {
-                'required': 'Title is required',
-                'max_length': 'Title must 80 characters at max'
-            },
-            'description': {
-                'required': 'Description is required',
-                'max_length': 'Description must be 400 characters at max'
-            },
-        }
+    

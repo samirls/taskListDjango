@@ -24,8 +24,8 @@
       {% endfor %}
     </div>
     <div>
-      {{ form.priority }}
       {{ form.priority.label_tag }}
+      {{ form.priority }}
       {% for error in form.priority.errors %}
       <div class="invalid-feedback">{{ error }}</div>
       {% endfor %}

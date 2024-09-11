@@ -3,9 +3,9 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from .forms import RegisterForm, LoginForm, CreateTaskForm, EditTaskForm
+from .forms import RegisterForm, LoginForm, CreateTaskForm
 from django.contrib.auth.decorators import login_required
-from .models import Priority, ToDoTask, CustomUser, Invite, Friendship
+from .models import Priority, ToDoTask, CustomUser, Invite, Friendship, UserToDoTask
 from django.db.models import Q
 
 User = get_user_model()
@@ -72,9 +72,10 @@ def register(request):
 
 @login_required
 def tasks(request):
-    user_tasks = ToDoTask.objects.filter(user=request.user)
+    user_tasks = UserToDoTask.objects.filter(user=request.user)
+    
     context = {
-        'tasks': user_tasks
+        'user_tasks': user_tasks
     }
     return render(request, 'tasks.html', context)
 
@@ -85,6 +86,13 @@ def createNewTask(request):
       task = form.save(commit=False)
       task.user = request.user
       task.save()
+      
+      user_to_do_task = UserToDoTask(
+        user=request.user,
+        task=task
+      )
+      user_to_do_task.save()
+      messages.success(request, 'Task created successfully')
       return redirect('tasks')
     else:
       messages.error(request, 'Please correct the errors and try again.')
@@ -108,7 +116,7 @@ def editTask(request, task_id):
     task = get_object_or_404(ToDoTask, id=task_id, user=request.user)
 
     if request.method == 'POST':
-        form = EditTaskForm(request.POST, instance=task)
+        form = CreateTaskForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
             messages.success(request, 'Task updated successfully!')
@@ -116,7 +124,7 @@ def editTask(request, task_id):
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
-        form = EditTaskForm(instance=task)
+        form = CreateTaskForm(instance=task)
 
     context = {
         'form': form,
@@ -136,7 +144,22 @@ def delete_task(request, task_id):
 
 @login_required
 def friends(request):
-  return render (request, 'friends.html')
+  user = request.user
+  
+  friendships = Friendship.objects.filter(
+    Q(user=user) | Q(friend=user)
+  ).select_related('user', 'friend')
+  
+  friend_list = [
+    f.friend if f.user == user else f.user
+    for f in friendships
+  ]
+
+  context = {
+    'friends': friend_list
+  }
+  
+  return render(request, 'friends.html', context)
 
 @login_required
 def add_friend(request):
@@ -185,20 +208,38 @@ def invitations(request):
     
 @login_required
 def change_invite_status(request, invite_id, action):
-    invite = get_object_or_404(Invite, id=invite_id, receiver=request.user)
+    invite = get_object_or_404(Invite, id=invite_id)
 
     if action == 'mark-as-read':
-        invite.invite_status = Invite.InviteStatus.READ
-        messages.success(request, 'Invite marked as read')
+      invite.invite_status = Invite.InviteStatus.READ
+      messages.success(request, 'Invite marked as read')
+      invite.save()
+      return redirect('invitations')
+    
     elif action == 'mark-as-unread':
-        invite.invite_status = Invite.InviteStatus.PENDING
-        messages.success(request, 'Invite marked as Unread')
+      invite.invite_status = Invite.InviteStatus.PENDING
+      messages.success(request, 'Invite marked as Unread')
+      invite.save()
+      return redirect('invitations')
+    
     elif action == 'accept':
-        invite.invite_status = Invite.InviteStatus.ACCEPTED
-        messages.success(request, 'Friend added successfully')
+      invite.invite_status = Invite.InviteStatus.ACCEPTED
+      Friendship.objects.create(
+        user=invite.sender,
+        friend=invite.receiver
+      )
+      messages.success(request, 'Friend added successfully')
+      invite.save()
+      return redirect('invitations')
+    
+    elif action == 'delete':
+      invite.delete()
+      Friendship.objects.filter(
+        Q(user=invite.sender, friend=invite.receiver) |
+        Q(user=invite.receiver, friend=invite.sender)
+        ).delete()
+
+      messages.success(request, 'Invite and friendship deleted successfully')
+      return redirect('invitations')
     else:
         return redirect('invitations')
-      
-    invite.save()
-        
-    return redirect('invitations')

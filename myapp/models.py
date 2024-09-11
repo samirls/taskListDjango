@@ -51,7 +51,20 @@ class CustomUser(AbstractUser):
         verbose_name=_("user permissions"),
     )
     
-    friendships = models.ManyToManyField('self', through='Friendship', symmetrical=False, related_name='friends', verbose_name=_("Friendships"))
+    friendships = models.ManyToManyField(
+        'self', 
+        through='Friendship', 
+        symmetrical=False, 
+        related_name='friends', 
+        verbose_name=_("Friendships")
+    )
+    
+    tasks = models.ManyToManyField(
+        'ToDoTask', 
+        through='UserToDoTask', 
+        related_name='users', 
+        verbose_name=_("Tasks")
+    )
     
     def __str__(self):
         return self.username
@@ -80,11 +93,28 @@ class ToDoTask(models.Model):
     
     priority = models.ForeignKey(Priority, on_delete=models.CASCADE, related_name="tasks", verbose_name=_("Priority"))
     
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="tasks", verbose_name=_("User"))
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="task_owner", verbose_name=_("User"))
+    
+    updatedByUser = models.ForeignKey(
+        CustomUser, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='updated_tasks', 
+        verbose_name=_("Updated By")
+    )
 
     def __str__(self):
         return self.title
 
 
+class UserToDoTask(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name=_("User"))
+    task = models.ForeignKey(ToDoTask, on_delete=models.CASCADE, verbose_name=_("Task"))
 
+    class Meta:
+        unique_together = ('user', 'task')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.task.title}"
   

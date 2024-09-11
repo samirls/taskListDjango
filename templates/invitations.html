@@ -23,8 +23,8 @@
           <td>{{ invite.receiver.name|upper }}</td>
           <td>{{ invite.get_invite_status_display }}</td>
           <td>
-            <form action="" method="post">
-              <input type="hidden" name="InviteId" value="{{ invite.id }}" />
+            <form action="{% url 'change_invite_status' invite.id 'delete' %}" method="post">
+              {% csrf_token %}
               <button class="btn btn-outline-danger btn-sm">Delete</button>
             </form>
           </td>
@@ -70,8 +70,8 @@
                 {% csrf_token %}
                 <button type="submit" class="btn btn-outline-success btn-sm">Accept</button>
               </form>
-              <form method="post">
-                <input type="hidden" name="InviteId" value="@invite.Id" />
+              <form action="{% url 'change_invite_status' invite.id 'delete' %}" method="post">
+                {% csrf_token %}
                 <button class="btn btn-outline-danger btn-sm">Delete</button>
               </form>
               {% endfor %}
