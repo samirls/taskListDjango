@@ -59,16 +59,32 @@ class CreateTaskForm(forms.ModelForm):
     title = forms.CharField(
         min_length=3, 
         max_length=80,
-        error_messages={'required': 'You need to add a title', 'min_length': 'Your title is too short', 'max_length': 'Your title must not exceed 80 letters'}
+        error_messages={'required': 'You need to add a title', 'min_length': 'Your title is too short', 'max_length': 'Your title must not exceed 80 letters'},
+        widget=forms.TextInput(attrs={
+          'class': 'form-control', 
+          'placeholder': 'Title',
+          'id': 'title'
+        })
     )
     description = forms.CharField(
         min_length=5, 
         max_length=400,
-        error_messages={'required': 'You need to add a description', 'min_length': 'Your description is too short', 'max_length': 'Your description must not exceed 400 letters'}
+        error_messages={'required': 'You need to add a description', 'min_length': 'Your description is too short', 'max_length': 'Your description must not exceed 400 letters'},
+        widget=forms.Textarea(attrs={
+          'class': 'form-control', 
+          'placeholder': 'Description',
+          'id': 'TaskDescription', 
+          'style': 'height: 120px'
+        })
     )
     priority = forms.ModelChoiceField(
         queryset=Priority.objects.all(),
-        error_messages={'required': 'Please select a priority level.'}
+        empty_label="Select a priority",
+        error_messages={'required': 'Please select a priority level.'},
+        widget=forms.Select(attrs={
+          'class': 'form-select', 
+          'id': 'priority'
+        })
     )
     
 class EditTaskForm(forms.ModelForm):
