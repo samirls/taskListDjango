@@ -1,7 +1,29 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+
+class Invite(models.Model):
+    class InviteStatus(models.TextChoices):
+        PENDING = 'P', _('Pending')
+        READ = 'R', _('Read')
+        ACCEPTED = 'A', _('Accepted')
+        DECLINED = 'D', _('Declined')
+
+    invite_status = models.CharField(
+        max_length=1,
+        choices=InviteStatus.choices,
+        default=InviteStatus.PENDING,
+        verbose_name=_("Invite Status")
+    )
+
+    sender = models.ForeignKey('CustomUser', on_delete=models.CASCADE, related_name='sent_invites', verbose_name=_("Sender"))
+
+    receiver = models.ForeignKey('CustomUser', on_delete=models.CASCADE, related_name='received_invites', verbose_name=_("Receiver"))
+
+    def __str__(self):
+        return f"Invite from {self.sender.username} to {self.receiver.username} - Status: {self.get_invite_status_display()}"
 
 class CustomUser(AbstractUser):
     name = models.CharField(max_length=150, verbose_name=_("Name"), help_text=_("Write your Name"))
@@ -29,8 +51,20 @@ class CustomUser(AbstractUser):
         verbose_name=_("user permissions"),
     )
     
+    friendships = models.ManyToManyField('self', through='Friendship', symmetrical=False, related_name='friends', verbose_name=_("Friendships"))
+    
     def __str__(self):
         return self.username
+
+class Friendship(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="friendships_initiated")
+    friend = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="friendships_received")
+
+    class Meta:
+        unique_together = ('user', 'friend')
+
+    def __str__(self):
+        return f"{self.user.username} is friends with {self.friend.username}"
 
 class Priority(models.Model):
     level = models.CharField(max_length=50, verbose_name=_("Priority Level"), help_text=_("Inform the priority level"))

@@ -1,4 +1,5 @@
 from django import forms
+from .models import ToDoTask, Priority
 
 class RegisterForm(forms.Form):
   name = forms.CharField(min_length=2, max_length=150, error_messages={'required': 'Name is required.'})
@@ -49,3 +50,45 @@ class LoginForm(forms.Form):
     min_length=3, 
     error_messages={'required': 'Password is required.', 'min_length': 'Password must be at least 3 characters long.'}
     )
+  
+class CreateTaskForm(forms.ModelForm):
+    class Meta:
+        model = ToDoTask
+        fields = ['title', 'description', 'priority']
+
+    title = forms.CharField(
+        min_length=3, 
+        max_length=80,
+        error_messages={'required': 'You need to add a title', 'min_length': 'Your title is too short', 'max_length': 'Your title must not exceed 80 letters'}
+    )
+    description = forms.CharField(
+        min_length=5, 
+        max_length=400,
+        error_messages={'required': 'You need to add a description', 'min_length': 'Your description is too short', 'max_length': 'Your description must not exceed 400 letters'}
+    )
+    priority = forms.ModelChoiceField(
+        queryset=Priority.objects.all(),
+        error_messages={'required': 'Please select a priority level.'}
+    )
+    
+class EditTaskForm(forms.ModelForm):
+    class Meta:
+        model = ToDoTask
+        fields = ['title', 'description', 'priority']
+        
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Task Title'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Task Description', 'rows': 5}),
+            'priority': forms.Select(attrs={'class': 'form-select'}),
+        }
+
+        error_messages = {
+            'title': {
+                'required': 'Title is required',
+                'max_length': 'Title must 80 characters at max'
+            },
+            'description': {
+                'required': 'Description is required',
+                'max_length': 'Description must be 400 characters at max'
+            },
+        }

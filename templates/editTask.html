@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Task{% endblock %}
+
+{% block content %}
+<h1>Edit Task</h1>
+<hr />
+<div>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="form-floating mb-3">
+      {{ form.title }}
+      {% for error in form.title.errors %}
+        <div class="invalid-feedback">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="form-floating mb-3">
+      {{ form.description }}
+      {% for error in form.description.errors %}
+        <div class="invalid-feedback">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.priority.label_tag }}
+      {{ form.priority }}
+      {% for error in form.priority.errors %}
+        <div class="invalid-feedback">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="d-flex justify-content-center pt-4 gap-5">
+      <a class="btn btn-secondary" href="{% url 'tasks' %}">Cancel</a>
+      <button type="submit" class="btn btn-success">Confirm Edit</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

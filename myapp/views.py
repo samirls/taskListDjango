@@ -1,10 +1,12 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User, auth
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, CreateTaskForm, EditTaskForm
 from django.contrib.auth.decorators import login_required
+from .models import Priority, ToDoTask, CustomUser, Invite, Friendship
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -70,15 +72,133 @@ def register(request):
 
 @login_required
 def tasks(request):
-  return render (request, 'tasks.html')
+    user_tasks = ToDoTask.objects.filter(user=request.user)
+    context = {
+        'tasks': user_tasks
+    }
+    return render(request, 'tasks.html', context)
 
 def createNewTask(request):
-  return render (request, 'createNewTask.html')
+  if request.method == 'POST':
+    form = CreateTaskForm(request.POST)
+    if form.is_valid():
+      task = form.save(commit=False)
+      task.user = request.user
+      task.save()
+      return redirect('tasks')
+    else:
+      messages.error(request, 'Please correct the errors and try again.')
+      priorities = Priority.objects.all()
+      context = {
+        'form': form,
+        'priorities': priorities
+        }
+      return render(request, 'createNewTask.html', context)
+  else:
+    form = CreateTaskForm()
+    priorities = Priority.objects.all()
+    context = {
+      'form': form,
+      'priorities': priorities
+    }
+    return render (request, 'createNewTask.html', context)
+
+@login_required
+def editTask(request, task_id):
+    task = get_object_or_404(ToDoTask, id=task_id, user=request.user)
+
+    if request.method == 'POST':
+        form = EditTaskForm(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Task updated successfully!')
+            return redirect('tasks')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = EditTaskForm(instance=task)
+
+    context = {
+        'form': form,
+        'task': task
+    }
+    return render(request, 'editTask.html', context)
+  
+@login_required
+def delete_task(request, task_id):
+    task = get_object_or_404(ToDoTask, id=task_id, user=request.user)
+
+    if request.method == "POST":
+        task.delete()
+        return JsonResponse({'success': True}, status=200)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 @login_required
 def friends(request):
   return render (request, 'friends.html')
 
 @login_required
+def add_friend(request):
+  if request.method == 'POST':
+    friend_email = request.POST.get('FriendEmail')
+    user = request.user
+    try:
+      friend = CustomUser.objects.get(email=friend_email)
+    except CustomUser.DoesNotExist:
+      messages.error(request, 'Friend not found.')
+      return redirect('friends')
+        
+    if friend_email == user.email:
+      messages.error(request, 'You cannot add yourself.')
+      return redirect('friends')
+        
+    is_friend_already_invited = Invite.objects.filter(sender=user, receiver=friend).exists()
+    if is_friend_already_invited:
+      messages.error(request, 'Friend already invited.')
+      return redirect('friends')
+          
+    am_i_already_invited_by_friend = Invite.objects.filter(sender=friend, receiver=user).exists()
+    if am_i_already_invited_by_friend:
+      messages.error(request, 'This friend already invited you. Manage your friends.')
+      return redirect('friends')
+          
+    invite = Invite(sender=user, receiver=friend, invite_status=Invite.InviteStatus.PENDING)
+    invite.save()
+        
+    messages.success(request, 'Invite sent!')
+    return redirect('friends')
+  else:
+      return redirect('friends')
+
+@login_required
 def invitations(request):
-  return render (request, 'invitations.html')
+    user = request.user
+
+    sent_invites = Invite.objects.filter(sender=user)
+    received_invites = Invite.objects.filter(receiver=user)
+
+    return render(request, 'invitations.html', {
+        'sent_invites': sent_invites,
+        'received_invites': received_invites
+    })
+    
+@login_required
+def change_invite_status(request, invite_id, action):
+    invite = get_object_or_404(Invite, id=invite_id, receiver=request.user)
+
+    if action == 'mark-as-read':
+        invite.invite_status = Invite.InviteStatus.READ
+        messages.success(request, 'Invite marked as read')
+    elif action == 'mark-as-unread':
+        invite.invite_status = Invite.InviteStatus.PENDING
+        messages.success(request, 'Invite marked as Unread')
+    elif action == 'accept':
+        invite.invite_status = Invite.InviteStatus.ACCEPTED
+        messages.success(request, 'Friend added successfully')
+    else:
+        return redirect('invitations')
+      
+    invite.save()
+        
+    return redirect('invitations')

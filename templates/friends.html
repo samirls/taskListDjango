@@ -12,37 +12,33 @@
       <i class="bi bi-plus-circle"></i> Invite a friend
     </div>
   </button>
-  <form class="dropdown-menu p-4" method="post">
+  <form class="dropdown-menu p-4" method="POST" action="{% url 'add_friend' %}">
+    {% csrf_token %}
     <div class="mb-3">
       <label for="FriendEmail" class="form-label">Friend's Email address</label>
-      <input type="email" class="form-control" id="FriendEmail" name="FriendEmail" placeholder="email@example.com">
+      <input required type="email" class="form-control" id="FriendEmail" name="FriendEmail" placeholder="email@example.com">
     </div>
     <button type="submit" class="btn btn-success">Send Invitation</button>
   </form>
 </div>
-<a href="invitations" class="d-flex pt-2 link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Manage your invitations</a>
+<a href="{% url 'invitations' %}" class="d-flex pt-2 link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Manage your invitations</a>
 
 
 <hr />
 <h4>All Your Friends</h4>
-@if (Model.Friends.Count == 0)
-{
+{% if not friends %}
   <p>You have no friends yet.</p>
-}
-else
-{
+  {% else %}
   <div class="d-flex flex-wrap gap-5">
-    @foreach (var friend in Model.Friends)
-    {
+    {% for friend in friends %}
       <div class="card shadow" style="width: fit-content">
         <div class="card-body">
-          <h5 class="card-title">@friend.Name.ToUpper()</h5>
-          <h6 class="card-subtitle mb-2 text-body-secondary">@friend.Email</h6>
+          <h5 class="card-title">{{ friend.name|upper }}</h5>
+          <h6 class="card-subtitle mb-2 text-body-secondary">{{ friend.email }}</h6>
         </div>
       </div>
-
-    }
+    {% endfor %}
   </div>
-}
+{% endif %}
 
 {% endblock %}

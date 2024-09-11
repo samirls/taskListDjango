@@ -12,6 +12,121 @@
   </a>
   <hr />
   <h4>All Tasks</h4>
+  {% if tasks %}
+  <div class="d-flex flex-wrap gap-5 pb-5">
+    {% for task in tasks %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div class="card shadow" style="width: 350px;">
+          <div class="card-body">
+            <div class="d-flex justify-content-between fs-4">
+              <div class="card-title">{{task.title}}</div>
+              {% if task.priority_id == 1 %}
+                <i class="bi bi-circle-fill text-success"></i>
+              {% endif %}
+              {% if task.priority_id == 2 %}
+                <i class="bi bi-alarm text-primary"></i>
+              {% endif %}
+              {% if task.priority_id == 3 %}
+                <i class="bi bi-exclamation-triangle text-danger "></i>
+              {% endif %}
+            </div>
+    
+            <p class="card-text">{{task.description}}</p>
+          </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <div>
+                Created by
+                <span class="btn btn-outline-secondary"
+                      style="--bs-btn-padding-y: .05rem; --bs-btn-padding-x: .2rem; --bs-btn-font-size: .65rem;">
+                  need to implement
+                </span>
+                missing
+              </div>
+                <div>
+                  Last Update by <span class="btn btn-outline-secondary" style="--bs-btn-padding-y: .05rem; --bs-btn-padding-x: .2rem; --bs-btn-font-size: .65rem;">
+                    need to implement
+                  </span> missing
+                </div>
+            </li>
+            <li class="list-group-item">
+              Shared with:
+                <span class="btn btn-outline-secondary"
+                      style="--bs-btn-padding-y: .05rem; --bs-btn-padding-x: .2rem; --bs-btn-font-size: .65rem;">
+                  @user.Name.ToUpper()
+                </span>
 
+            </li>
+            <li class="list-group-item">
+              <form method="POST" onsubmit="confirmDelete(this);" class="d-flex justify-content-center gap-2">
+                {% csrf_token %}
+                <a class="btn btn-primary">Share</a>
+                <a href="{% url 'editTask' task.id %}" class="btn btn-purple">Edit</a>
+                <button type="submit" data-task-id="{{ task.id }}" class="btn btn-danger">Delete</button>
+              </form>
+            </li>
+          </ul>
+        </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <h6 class="d-flex justify-content-center">You have no tasks, create one!</h6>
+{% endif %}
+
+
+{% block extra_scripts %}
+<script>
+  function confirmDelete(form) {
+    event.preventDefault();
+  
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      confirmButtonText: "Delete",
+      showClass: {
+        popup: 'animate__animated animate__zoomIn animate__faster'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__zoomOut animate__faster'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const taskId = form.querySelector('button[type="submit"]').getAttribute('data-task-id');
+        const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+  
+        fetch(`/tasks/delete/${taskId}/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+          },
+        }).then(response => {
+          if (response.ok) {
+            Swal.fire(
+              'Deleted!',
+              'Your task has been deleted.',
+              'success'
+            ).then(() => {
+              window.location.reload();
+            });
+          } else {
+            Swal.fire(
+              'Error!',
+              'There was a problem deleting your task.',
+              'error'
+            );
+          }
+        });
+      }
+    });
+  
+    return false;
+  }
+</script>
 
 {% endblock %}
+{% endblock %}
+

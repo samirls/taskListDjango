@@ -1,1 +1,44 @@
-createNewTask
+{% extends 'base.html' %}
+
+{% block title %}Friends{% endblock %}
+
+{% block content %}
+
+<h1>Create Task</h1>
+
+<div>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="form-floating mb-3">
+      <input type="text" name="title" class="form-control {% if form.title.errors %}is-invalid{% endif %}" id="title" placeholder="title">
+      <label for="taskDescription">Title</label>
+      {% for error in form.title.errors %}
+      <div class="invalid-feedback">{{ error }}</div>
+      {% endfor %}
+    </div>
+    <div class="form-floating mb-3">
+      <textarea type="text" name="description" class="form-control {% if form.description.errors %}is-invalid{% endif %}" placeholder="Description" id="TaskDescription" style="height: 120px"></textarea>
+      <label for="floatingTextarea2">Description</label>
+      {% for error in form.description.errors %}
+      <div class="invalid-feedback">{{ error }}</div>
+      {% endfor %}
+    </div>
+    <div>
+      <select name="priority" class="form-select {% if form.priority.errors %}is-invalid{% endif %}">
+        <option value="" disabled selected>Choose a priority</option>
+        {% for priority in priorities %}
+          <option value="{{ priority.id }}">{{ priority.level }}</option>
+        {% endfor %}
+      </select>
+      {% for error in form.priority.errors %}
+      <div class="invalid-feedback">{{ error }}</div>
+      {% endfor %}
+    </div>
+    <div class="d-flex justify-content-center pt-4 gap-5">
+      <a class="btn btn-secondary" href="{% url 'tasks' %}">Cancel</a>
+      <button type="submit" class="btn btn-success">Create</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

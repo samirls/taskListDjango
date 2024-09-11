@@ -6,9 +6,9 @@
 
 <h3>Sent Invites</h3>
 
+{% if not sent_invites %}
   <div>No invites sent</div>
-
-
+{% else %}
   <table class="table">
     <thead>
       <tr>
@@ -18,25 +18,26 @@
       </tr>
     </thead>
     <tbody>
-
+      {% for invite in sent_invites %}
         <tr>
-          <td>@invite.Receiver.Name.ToUpper()</td>
-          <td>@invite.InviteStatus</td>
+          <td>{{ invite.receiver.name|upper }}</td>
+          <td>{{ invite.get_invite_status_display }}</td>
           <td>
-            <form asp-action="DeleteInviteAndFriend" method="post">
-              <input type="hidden" name="InviteId" value="@invite.Id" />
+            <form action="" method="post">
+              <input type="hidden" name="InviteId" value="{{ invite.id }}" />
               <button class="btn btn-outline-danger btn-sm">Delete</button>
             </form>
           </td>
         </tr>
-      
+      {% endfor %}
     </tbody>
   </table>
+{% endif %}
 
 <h3 class="pt-5">Received Invites</h3>
-
+{% if not received_invites %}
   <div>There are no friend requests</div>
-
+{% else %}
   <table class="table">
     <thead>
       <tr>
@@ -47,40 +48,38 @@
       </tr>
     </thead>
     <tbody>
-
+{% for invite in received_invites %}
         <tr>
-          <td>@invite.Sender.Name.ToUpper()</td>
-          <td>@invite.InviteStatus</td>
+          <td>{{ invite.sender.name|upper }}</td>
+          <td>{{ invite.get_invite_status_display }}</td>
           <td>
             <div class="d-flex flex-column gap-1" style="width: fit-content;">
-              <form asp-action="MarkAsRead" method="post">
-                <input type="hidden" name="InviteId" value="@invite.Id" />
+              <form action="{% url 'change_invite_status' invite.id 'mark-as-read' %}" method="post">
+                {% csrf_token %}
                 <button type="submit" class="btn btn-outline-secondary btn-sm">Mark as Read</button>
               </form>
-              <form asp-action="MarkAsUnread" method="post">
-                <input type="hidden" name="InviteId" value="@invite.Id" />
+              <form action="{% url 'change_invite_status' invite.id 'mark-as-unread' %}" method="post">
+                {% csrf_token %}
                 <button type="submit" class="btn btn-outline-secondary btn-sm">Mark as Unread</button>
               </form>
             </div>
           </td>
           <td>
             <div class="d-flex flex-column gap-1" style="width: fit-content;">
-              <form asp-action="AcceptInvite" method="post">
-                <input type="hidden" name="InviteId" value="@invite.Id" />
+              <form action="{% url 'change_invite_status' invite.id 'accept' %}" method="post">
+                {% csrf_token %}
                 <button type="submit" class="btn btn-outline-success btn-sm">Accept</button>
               </form>
-              <form asp-action="DeleteInviteAndFriend" method="post">
+              <form method="post">
                 <input type="hidden" name="InviteId" value="@invite.Id" />
                 <button class="btn btn-outline-danger btn-sm">Delete</button>
               </form>
-              
+              {% endfor %}
             </div>
           </td>
         </tr>
-      
+      {% endif %}
     </tbody>
   </table>
-
-
 
 {% endblock %}
